@@ -22,3 +22,28 @@ Groups identical documents together
   }
 }
 ```
+
+## Facets
+
+Per MongoDB docs: ** Processes multiple aggregation pipelines with a single stage on the same set of input documents. Each sub-pipeline has its own field in the output document where its results are stored as an array of **
+
+Syntax:
+
+```javascript
+db.collection.aggregate([
+  {
+    $facet: {
+      categoryByA: [
+        {
+          /* Do something */
+        },
+      ],
+      categoryByB: [
+        {
+          /* Do something */
+        },
+      ],
+    },
+  },
+]);
+```
