@@ -47,3 +47,30 @@ db.collection.aggregate([
   },
 ]);
 ```
+
+The results come back in an array of document/documents.
+
+## Buckets
+
+Per MongoDB:
+
+> Categories incoming documents into groups, called buckets, based on a specified expressions and bucket boundaries and ouputs a document per each bucket. Each output document contains an `_id` field whose value specifies the inclusive lower bound of the bucket. The output option specifies the fields included in each output document.
+>
+> `$bucket` only produces output documents for buckets that contain at least one input document.
+
+Syntax:
+
+```javascript
+{
+  $bucket: {
+    groupBy: <expression>,
+    boundaries: [<lowerbound1>, <lowerbound2>,...],
+    default: <literal>,
+    output: {
+      <output1>: {<$accumulator expression>},
+      ...
+      <output2>: {<$accumulator expression>},
+    }
+  }
+}
+```
