@@ -18,38 +18,63 @@ class Movies {
 
   static async getOneMovie() {
     try {
-      const cursor = await movies
-        .find({ countries: { $in: ["Canada"] } })
-        .project({ title: 1, _id: 0 });
-      return cursor.toArray();
+      const pipeline = [
+        {
+          $project: {
+            _id: 0,
+            title: {
+              $size: {
+                $split: ["$title", " "],
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            title: {
+              $eq: 1,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+      ];
+
+      const cursor = await movies.aggregate(pipeline).toArray();
+
+      return { cursor };
     } catch (e) {
-      return e;
+      console.log(e);
     }
   }
 
   static async getAllMovies() {
     const pipeline = [
       {
-        $group: {
-          _id: {
-            numDirectors: {
-              $cond: [{ $isArray: "$directors" }, { $size: "$directors" }, 0],
-            },
-          },
-          numFilms: { $sum: 1 },
-          averageMetacritic: { $avg: "$metacritic" },
-        },
-      },
-      {
         $match: {
-          averageMetacritic: { $ne: null },
+          "imdb.rating": {
+            $gte: 7,
+          },
+          genres: {
+            $ne: ["Crime", "Horror"],
+          },
+          rated: {
+            $in: ["PG", "G"],
+          },
+          languages: {
+            $in: ["English", "Japanese"],
+          },
         },
-      },
-      {
-        $sort: { "_id.numDirectors": -1 },
       },
     ];
     const cursor = await movies.aggregate(pipeline);
+
     return await cursor.toArray();
   }
 }
@@ -57,6 +82,30 @@ class Movies {
 module.exports = Movies;
 
 /*
+
+
+const pipeline = [
+  {
+    $match: {
+    rating at least 7
+      "imdb.rating": {
+        $gte: 7,
+      },
+      Array that does NOT include these items
+      genres: {
+        $nin: ["Crime", "Horror"],
+      },
+      Is PG or G
+      rated: {
+        $in: ["PG", "G"],
+      },
+      is Japanese and English
+      languages: {
+        $all: ["English", "Japanese"],
+      },
+    },
+  },
+]
 
 // Grouping documents by specified _id. In this case '$year'
 const pipeline = [
