@@ -58,6 +58,8 @@ Per MongoDB:
 >
 > `$bucket` only produces output documents for buckets that contain at least one input document.
 
+Commonly used with `facets`.
+
 Syntax:
 
 ```javascript
@@ -74,3 +76,48 @@ Syntax:
   }
 }
 ```
+
+## Redact
+
+A security layer preventing certain information from being sent.
+
+Must resolve to one of three values:
+
+```javascript
+$$DESCEND; // retain this level
+$$PRUNE;
+$$KEEP;
+```
+
+Keep in mind:
+`$$KEEP` and `$$PRUNE` automatically apply to all levels below the evaluated level.
+`$$DESCEND` retains the current level and evaluates the next level down.
+`$redact` is not for restricting access to a collection.
+
+## Out Stage
+
+Must be the last stage in a pipeline.
+
+!!
+
+## Aggregation Performance
+
+1. Realtime processing
+   Performance is important for realtime processing.
+2. Batch processing
+   Performance is not important. Used for analytics
+
+### Index usage
+
+Aggregation queries use pipelines and some of the stages can use indexes.
+
+### Memory Constraints
+
+16MB document limit (which doesn't apply as the document flows through the pipeline)
+
+Use `$limit` and `$project` to reduce the size of your results
+Use indexes to reduce RAM usage.
+
+If you are still hitting the RAM limit, use the option `allowDiskUse: true` but that should be a last resort as it reduces the performance significantly (this also doesn't work with `$graphLookup`).
+
+
